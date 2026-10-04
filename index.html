@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>JJK Sakuna — SAYED SADIQ</title>
+<meta name="description" content="JJK Sakuna domain expansion experience by SAYED SADIQ.">
+<meta property="og:title" content="JJK Sakuna — SAYED SADIQ">
+<meta property="og:description" content="Enter the realm. Created by SAYED SADIQ.">
+<meta property="og:type" content="website">
+<!--
+  ══════════════════════════════════════════════════════════════════
+  IMAGE / VIDEO SLOTS — replace these files (keep the same names):
+
+    hero.mp4  →  HERO BACKGROUND VIDEO (looping, dark/moody works best)
+    1.png     →  LEFT HAND  (transparent PNG, hand reaching right)   ✔ included
+    2.png     →  RIGHT HAND (transparent PNG, hand reaching left)    ✔ included
+    3.png     →  FORMED HAND SIGN (transparent PNG, wide ~1500×550)
+    4.png     →  CHARACTER FULL BODY (transparent/dark PNG, tall ~900×1600)
+    5.png     →  TEMPLE / DOMAIN BACKGROUND (transparent PNG, wide ~1500×950)
+    6.png     →  TITLE ART "DOMAIN EXPANSION" (transparent PNG, ~680×350)
+
+  All lightning is generated in code (canvas) — no lightning images.
+  ══════════════════════════════════════════════════════════════════
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600&family=Zen+Old+Mincho:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#06030c;
+    --violet:#8b5cf6;
+    --violet-hi:#c4b5fd;
+    --bone:#ded7ec;
+    --dim:#6e6390;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--void);color:var(--bone);font-family:'Rajdhani',system-ui,sans-serif;overflow-x:hidden}
+  ::selection{background:var(--violet);color:var(--void)}
+  img,video{-webkit-user-drag:none;user-select:none}
+
+  #stage{
+    height:100vh;width:100%;position:relative;overflow:hidden;
+    background:radial-gradient(ellipse 130% 90% at 50% 115%, #130923 0%, var(--void) 62%);
+  }
+  #shaker{position:absolute;inset:0;will-change:transform}
+
+  .vignette{
+    position:absolute;inset:0;pointer-events:none;z-index:55;
+    background:radial-gradient(ellipse 95% 80% at 50% 50%, transparent 52%, rgba(2,1,6,.9) 100%);
+  }
+  .noise{
+    position:absolute;inset:-50%;pointer-events:none;z-index:56;opacity:.04;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+    animation:grain 1.1s steps(4) infinite;
+  }
+  @keyframes grain{
+    0%{transform:translate(0,0)}25%{transform:translate(-2%,3%)}
+    50%{transform:translate(3%,-2%)}75%{transform:translate(-3%,-3%)}100%{transform:translate(2%,2%)}
+  }
+  #stormGlow{
+    position:absolute;inset:0;z-index:8;opacity:0;pointer-events:none;
+    background:
+      radial-gradient(ellipse 75% 55% at 50% 22%, rgba(124,58,237,.30), transparent 70%),
+      radial-gradient(ellipse 50% 40% at 12% 55%, rgba(139,92,246,.16), transparent 70%),
+      radial-gradient(ellipse 50% 40% at 88% 55%, rgba(139,92,246,.16), transparent 70%);
+  }
+  #storm{position:absolute;inset:0;z-index:16;pointer-events:none}   /* lightning canvas */
+  #emberField{position:absolute;inset:0;z-index:26;pointer-events:none}
+  .ember{
+    position:absolute;width:3px;height:3px;border-radius:50%;
+    background:var(--violet);box-shadow:0 0 8px 2px rgba(139,92,246,.6);opacity:0;
+  }
+
+  .scene{position:absolute;inset:0;display:grid;place-items:center}
+
+  /* ── HERO · video + kanji ── */
+  #s-landing{z-index:42}
+  .heroMedia{position:absolute;inset:0;overflow:hidden}
+  .heroMedia video{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    filter:saturate(1.05) brightness(.85);
+  }
+  .heroOverlay{
+    position:absolute;inset:0;
+    background:
+      linear-gradient(to bottom, rgba(6,3,12,.75), rgba(6,3,12,.25) 30%, rgba(6,3,12,.35) 65%, rgba(6,3,12,.92)),
+      radial-gradient(ellipse 80% 60% at 50% 45%, transparent 30%, rgba(6,3,12,.65) 100%);
+  }
+  .kanjiRail{
+    position:absolute;top:50%;transform:translateY(-50%);
+    writing-mode:vertical-rl;
+    font-family:'Zen Old Mincho',serif;font-weight:900;
+    font-size:clamp(20px,2.6vw,40px);letter-spacing:.42em;
+    color:transparent;-webkit-text-stroke:1px rgba(196,181,253,.35);
+    text-shadow:0 0 24px rgba(139,92,246,.25);
+    user-select:none;pointer-events:none;
+  }
+  .kanjiRail.left{left:clamp(14px,3.5vw,60px)}
+  .kanjiRail.right{right:clamp(14px,3.5vw,60px)}
+  .kanjiCorner{
+    position:absolute;
+    font-family:'Zen Old Mincho',serif;font-weight:700;
+    font-size:13px;letter-spacing:.5em;color:rgba(167,139,250,.5);
+    user-select:none;pointer-events:none;
+  }
+  .kanjiCorner.tl{top:26px;left:30px}
+  .kanjiCorner.tr{top:26px;right:30px;text-align:right}
+  .kanjiCorner.bl{bottom:26px;left:30px}
+  .kanjiCorner.br{bottom:26px;right:30px;text-align:right}
+  #kanjiWm{
+    position:absolute;top:50%;left:50%;transform:translate(-50%,-54%);
+    font-family:'Zen Old Mincho',serif;font-weight:900;
+    font-size:clamp(150px,27vw,400px);line-height:1;white-space:nowrap;
+    color:transparent;-webkit-text-stroke:1px rgba(139,92,246,.12);
+    letter-spacing:.06em;pointer-events:none;
+  }
+  #s-landing .inner{text-align:center;position:relative}
+  #s-landing .eyebrow{font-size:11px;font-weight:600;letter-spacing:.7em;text-indent:.7em;color:#9d92bd;margin-bottom:24px}
+  #s-landing .jpSub{
+    font-family:'Zen Old Mincho',serif;font-weight:700;
+    font-size:clamp(13px,1.5vw,18px);letter-spacing:1em;text-indent:1em;
+    color:rgba(196,181,253,.75);margin-bottom:16px;
+  }
+  #s-landing h1{
+    font-weight:500;font-size:clamp(28px,4.8vw,62px);
+    letter-spacing:clamp(.3em,1.1vw,.55em);text-indent:clamp(.3em,1.1vw,.55em);
+    color:var(--bone);text-shadow:0 0 40px rgba(139,92,246,.55);
+  }
+  #s-landing .rule{width:1px;height:64px;margin:34px auto 0;background:linear-gradient(to bottom, rgba(196,181,253,.8), transparent)}
+  .creatorMark{margin:30px auto 0;display:flex;flex-direction:column;align-items:center;gap:13px}
+  .creatorName{font-size:clamp(16px,2vw,25px);font-weight:600;letter-spacing:.28em;text-indent:.28em;color:#fff;text-shadow:0 0 24px rgba(196,181,253,.75)}
+  .creatorLinks{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+  .creatorLinks a{display:inline-flex;align-items:center;min-height:34px;padding:7px 14px;border:1px solid rgba(196,181,253,.45);border-radius:999px;color:var(--violet-hi);font-size:10px;font-weight:600;letter-spacing:.18em;text-decoration:none;background:rgba(20,10,38,.48);backdrop-filter:blur(8px);transition:background .25s,border-color .25s,box-shadow .25s,transform .25s}
+  .creatorLinks a:hover,.creatorLinks a:focus-visible{background:rgba(124,58,237,.35);border-color:rgba(224,214,255,.9);box-shadow:0 0 22px rgba(139,92,246,.55);transform:translateY(-2px)}
+  .creatorLinks a:focus-visible{outline:1px solid #fff;outline-offset:3px}
+  @media (max-width:520px){
+    .creatorMark{margin-top:24px;gap:11px}
+    .creatorName{letter-spacing:.18em;text-indent:.18em}
+    .creatorLinks{gap:8px}
+    .creatorLinks a{font-size:9px;padding:7px 11px}
+  }
+
+  /* ── flow 1 · hands ── */
+  #s-hands{z-index:24}
+  #handsPair{position:relative;display:flex;align-items:center;width:min(88vw,1340px)}
+  #handsPair img{width:50%;display:block;opacity:0;will-change:transform,opacity;
+    filter:drop-shadow(0 0 30px rgba(124,58,237,.3))}
+  #focusTxt{
+    position:absolute;top:16%;left:50%;transform:translateX(-50%);
+    font-size:clamp(13px,1.5vw,19px);font-weight:600;color:#a99cc9;
+    letter-spacing:.7em;text-indent:.7em;opacity:0;z-index:25;
+  }
+
+  /* ── flow 2 · the sign ── */
+  #s-sign{z-index:24}
+  #signWrap{position:relative;text-align:center;opacity:0;will-change:transform,opacity,filter}
+  #signImg{width:min(86vw,1300px);display:block;filter:drop-shadow(0 0 40px rgba(124,58,237,.4))}
+  #signCaption{
+    margin-top:6px;font-size:clamp(11px,1.3vw,17px);font-weight:600;color:var(--violet-hi);
+    letter-spacing:.85em;text-indent:.85em;white-space:nowrap;opacity:0;
+  }
+  #flash{
+    position:absolute;inset:0;z-index:50;pointer-events:none;opacity:0;
+    background:radial-gradient(ellipse at 50% 40%, rgba(224,214,255,.95), rgba(124,58,237,.4) 46%, transparent 80%);
+    mix-blend-mode:screen;
+  }
+
+  /* ── flow 3 · temple + character parallax ── */
+  #templeWrap{
+    position:absolute;left:50%;bottom:6vh;z-index:12;
+    width:min(92vw,1560px);opacity:0;will-change:transform,opacity;
+  }
+  #templeWrap img{width:100%;display:block;filter:drop-shadow(0 0 60px rgba(124,58,237,.35))}
+  #s-reveal{z-index:30;pointer-events:none}
+  #sukunaWrap{
+    position:absolute;left:50%;bottom:0;z-index:30;
+    height:96vh;opacity:0;will-change:transform,opacity;
+  }
+  #sukunaWrap img{height:100%;width:auto;display:block;filter:drop-shadow(0 -8px 70px rgba(124,58,237,.4))}
+  #titleWrap{
+    position:absolute;left:clamp(16px,5vw,90px);bottom:clamp(40px,10vh,120px);z-index:34;
+    width:clamp(250px,30vw,480px);opacity:0;will-change:transform,opacity;
+  }
+  #titleWrap img{width:100%;display:block;filter:drop-shadow(0 0 30px rgba(139,92,246,.5))}
+  #cta{
+    position:absolute;right:clamp(16px,5vw,90px);bottom:clamp(44px,10vh,110px);z-index:34;
+    pointer-events:auto;opacity:0;
+    display:inline-flex;align-items:center;gap:10px;
+    padding:15px 34px;border-radius:999px;
+    background:rgba(124,58,237,.16);
+    border:1px solid rgba(167,139,250,.55);
+    color:var(--violet-hi);font-family:'Rajdhani';font-weight:600;
+    font-size:12px;letter-spacing:.4em;text-indent:.1em;cursor:pointer;
+    backdrop-filter:blur(8px);transition:background .3s, box-shadow .3s;
+  }
+  #cta:hover{background:rgba(124,58,237,.34);box-shadow:0 0 34px rgba(139,92,246,.5)}
+  #cta:focus-visible{outline:1px solid var(--violet-hi);outline-offset:3px}
+
+  #progress{
+    position:fixed;left:0;top:0;height:2px;width:100%;z-index:90;
+    transform-origin:0 50%;transform:scaleX(0);
+    background:linear-gradient(90deg,#7c3aed,#c026d3);
+    box-shadow:0 0 12px rgba(139,92,246,.8);
+  }
+  .scrollhint{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    z-index:80;font-size:10px;font-weight:600;letter-spacing:.55em;text-indent:.55em;
+    color:var(--dim);display:flex;flex-direction:column;align-items:center;gap:10px;
+  }
+  .scrollhint::after{
+    content:"";width:1px;height:34px;
+    background:linear-gradient(to bottom, rgba(139,92,246,.7), transparent);
+    animation:drip 1.8s ease-in-out infinite;
+  }
+  @keyframes drip{0%{transform:scaleY(0);transform-origin:top}
+    45%{transform:scaleY(1);transform-origin:top}
+    55%{transform:scaleY(1);transform-origin:bottom}
+    100%{transform:scaleY(0);transform-origin:bottom}}
+  @media (prefers-reduced-motion:reduce){.noise,.scrollhint::after{animation:none}}
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div id="shaker">
+
+    <div id="stormGlow"></div>
+
+    <!-- flow 3 · domain background  [ 5.png ] -->
+    <div id="templeWrap" aria-hidden="true"><img src="5.png" alt=""></div>
+
+    <!-- code-generated lightning -->
+    <canvas id="storm"></canvas>
+
+    <div id="emberField"></div>
+
+    <!-- flow 1 · hands  [ 1.png + 2.png ] -->
+    <section class="scene" id="s-hands" aria-hidden="true">
+      <div id="handsPair">
+        <img id="handL" src="1.png" alt="">
+        <img id="handR" src="2.png" alt="">
+      </div>
+      <p id="focusTxt">FOCUS…</p>
+    </section>
+
+    <!-- flow 2 · the sign  [ 3.png ] -->
+    <section class="scene" id="s-sign" aria-hidden="true">
+      <div id="signWrap">
+        <img id="signImg" src="3.png" alt="">
+        <p id="signCaption">DOMAIN EXPANSION</p>
+      </div>
+    </section>
+
+    <!-- flow 3 · character  [ 4.png ]  · title art  [ 6.png ] -->
+    <section class="scene" id="s-reveal" aria-hidden="true">
+      <div id="sukunaWrap"><img src="4.png" alt=""></div>
+      <div id="cta">SAKUNA</div>
+    </section>
+
+    <!-- HERO · video + overlay + kanji  [ hero.mp4 ] -->
+    <section class="scene" id="s-landing">
+      <div class="heroMedia">
+        <video id="heroVid" src="hero.mp4" autoplay muted loop playsinline
+               onerror="this.style.display='none'"></video>
+        <div class="heroOverlay"></div>
+      </div>
+      <div id="kanjiWm">領域展開</div>
+      <div class="kanjiRail left">呪術ノ刻</div>
+      <div class="kanjiRail right">宿儺ノ間</div>
+      <div class="kanjiCorner tl">壱 ── 構</div>
+      <div class="kanjiCorner tr">弐 ── 印</div>
+      <div class="kanjiCorner bl">参 ── 雷</div>
+      <div class="kanjiCorner br">肆 ── 展</div>
+      <div class="inner">
+        <p class="eyebrow">CURSED TECHNIQUE</p>
+        <p class="jpSub">領域展開</p>
+        <h1>ENTER THE REALM</h1>
+        <div class="creatorMark" aria-label="Created by SAYED SADIQ">
+          <p class="creatorName">SAYED SADIQ</p>
+          <nav class="creatorLinks" aria-label="SAYED SADIQ profiles">
+            <a href="https://www.linkedin.com/in/sayed-sadiq45/" target="_blank" rel="noopener noreferrer">LINKEDIN</a>
+            <a href="https://github.com/SayedSadiq45" target="_blank" rel="noopener noreferrer">GITHUB</a>
+          </nav>
+        </div>
+        <div class="rule"></div>
+      </div>
+    </section>
+
+    <div id="flash"></div>
+    <div class="noise"></div>
+    <div class="vignette"></div>
+  </div>
+</div>
+
+<div id="progress"></div>
+<div class="scrollhint" id="hint">SCROLL</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ════════════════════════════════════════════════════════════════
+   ⚡ STORM ENGINE — all lightning is drawn in code on a canvas.
+   Fractal channels (midpoint displacement), tapered white-hot core
+   inside lilac + violet glow, recursive branches, multi-restrike
+   flicker envelopes, and an ambient storm layer of distant flashes.
+   ════════════════════════════════════════════════════════════════ */
+const cv = document.getElementById('storm');
+const cx = cv.getContext('2d');
+let W=0, H=0, DPR=1;
+function resize(){
+  DPR = Math.min(window.devicePixelRatio||1, 2);
+  W = cv.clientWidth = window.innerWidth;
+  H = cv.clientHeight = window.innerHeight;
+  cv.width = W*DPR; cv.height = H*DPR;
+  cx.setTransform(DPR,0,0,DPR,0,0);
+}
+resize(); addEventListener('resize', resize);
+
+const rnd = (a,b)=>a+Math.random()*(b-a);
+
+/* jagged channel via midpoint displacement */
+function frag(x0,y0,x1,y1,rough=.16,iters=7){
+  let pts=[[x0,y0],[x1,y1]];
+  for(let k=0;k<iters;k++){
+    const nxt=[pts[0]];
+    for(let i=0;i<pts.length-1;i++){
+      const [ax,ay]=pts[i],[bx,by]=pts[i+1];
+      const mx=(ax+bx)/2, my=(ay+by)/2;
+      const dx=bx-ax, dy=by-ay, L=Math.hypot(dx,dy)||1;
+      const off=rnd(-1,1)*L*rough;
+      nxt.push([mx - dy/L*off, my + dx/L*off],[bx,by]);
+    }
+    pts=nxt;
+  }
+  return pts;
+}
+
+let strikes=[], rafOn=false, stormLevel=0;
+
+function spawn(o){
+  const pts = frag(o.x0,o.y0,o.x1,o.y1, o.rough??.16, o.iters??7);
+  const brs=[];
+  const nb = o.branches ?? 6;
+  for(let i=0;i<nb;i++){
+    const idx = Math.floor(rnd(pts.length*.15, pts.length*.85));
+    const [px,py]=pts[idx], [qx,qy]=pts[Math.min(idx+1,pts.length-1)];
+    const base=Math.atan2(qy-py,qx-px);
+    const ang = base + rnd(.35,1.0)*(Math.random()<.5?-1:1);
+    const len = rnd(60,190)*(o.scale??1);
+    brs.push(frag(px,py, px+Math.cos(ang)*len, py+Math.sin(ang)*len, .22, 5));
+  }
+  strikes.push({pts, brs, born:performance.now(),
+    dur:o.dur??560, scale:o.scale??1, peak:o.peak??1,
+    restrikes:o.restrikes??2, phase:rnd(0,10), sheet:false});
+  if(!rafOn){ rafOn=true; requestAnimationFrame(loop); }
+}
+function spawnSheet(o){   /* distant intra-cloud flash */
+  strikes.push({sheet:true, x:o.x, y:o.y, r:o.r??Math.max(W,H)*.55,
+    born:performance.now(), dur:o.dur??420, peak:o.peak??.25, phase:rnd(0,10)});
+  if(!rafOn){ rafOn=true; requestAnimationFrame(loop); }
+}
+
+/* multi-restrike envelope: main hit, then the channel re-ionises */
+function envelope(t, s){
+  const peaks=[[0,1],[.3,.62],[.58,.4]].slice(0, 1+s.restrikes);
+  let e=0;
+  for(const [p,amp] of peaks) if(t>=p) e=Math.max(e, amp*Math.exp(-(t-p)*7.5));
+  return e*(.82+.18*Math.sin(55*t+s.phase*7));
+}
+
+function poly(pts, i0, i1, w, style){
+  cx.lineWidth=w; cx.strokeStyle=style;
+  cx.beginPath(); cx.moveTo(pts[i0][0], pts[i0][1]);
+  for(let i=i0+1;i<=i1;i++) cx.lineTo(pts[i][0], pts[i][1]);
+  cx.stroke();
+}
+function drawChannel(pts, a, s){
+  const n=pts.length-1;
+  /* taper in three chunks: sky→tip */
+  const chunks=[[0,Math.floor(n*.45),1],[Math.floor(n*.45),Math.floor(n*.8),.62],[Math.floor(n*.8),n,.34]];
+  cx.shadowColor=`rgba(139,92,246,${a})`; cx.shadowBlur=30*s;
+  for(const [i0,i1,f] of chunks) poly(pts,i0,i1, 8.5*s*f, `rgba(124,58,237,${.32*a})`);
+  cx.shadowBlur=0;
+  for(const [i0,i1,f] of chunks) poly(pts,i0,i1, 3.4*s*f, `rgba(200,180,255,${.75*a})`);
+  for(const [i0,i1,f] of chunks) poly(pts,i0,i1, 1.35*s*f, `rgba(255,255,255,${a})`);
+}
+function loop(now){
+  cx.clearRect(0,0,W,H);
+  cx.globalCompositeOperation='lighter';
+  cx.lineCap='round'; cx.lineJoin='round';
+  strikes = strikes.filter(s=>{
+    const t=(now-s.born)/s.dur;
+    if(t>=1) return false;
+    if(s.sheet){
+      const a = s.peak*Math.exp(-t*5)*(.8+.2*Math.sin(40*t+s.phase));
+      const g = cx.createRadialGradient(s.x,s.y,0, s.x,s.y,s.r);
+      g.addColorStop(0,`rgba(167,139,250,${a})`);
+      g.addColorStop(.5,`rgba(124,58,237,${a*.4})`);
+      g.addColorStop(1,'rgba(124,58,237,0)');
+      cx.fillStyle=g; cx.fillRect(0,0,W,H);
+      return true;
+    }
+    const a = envelope(t,s)*s.peak;
+    if(a>.01){
+      drawChannel(s.pts, a, s.scale);
+      for(const b of s.brs) drawChannel(b, a*.5, s.scale*.5);
+    }
+    return true;
+  });
+  cx.globalCompositeOperation='source-over';
+  if(strikes.length){ requestAnimationFrame(loop); } else rafOn=false;
+}
+
+/* strike factories */
+function skyBolt({x=.5, scale=1, peak=1, restrikes=2, drift=.14}={}){
+  spawn({x0:x*W+rnd(-30,30), y0:-40,
+         x1:(x+rnd(-drift,drift))*W, y1:rnd(.55,.8)*H,
+         scale, peak, restrikes, branches:Math.round(6*scale)+2});
+}
+function tearBolt({peak=1}={}){        /* the sign rips the sky open sideways */
+  const y=H*.46;
+  spawn({x0:W/2, y0:y, x1:-60,  y1:y+rnd(-90,90), rough:.11, scale:.9, peak, restrikes:2, branches:5});
+  spawn({x0:W/2, y0:y, x1:W+60, y1:y+rnd(-90,90), rough:.11, scale:.9, peak, restrikes:2, branches:5});
+  spawnSheet({x:W/2, y, r:Math.max(W,H)*.4, peak:.3});
+}
+function sparkArc(){                    /* fingertip contact */
+  const y=H*.5;
+  spawn({x0:W/2-40, y0:y, x1:W/2+40, y1:y+rnd(-10,10), rough:.3, iters:5,
+         scale:.3, peak:.9, restrikes:1, branches:3, dur:380});
+}
+
+/* ambient storm — distant strikes & sheet flashes while the storm rages */
+if (!reduceMotion){
+  setInterval(()=>{
+    if(stormLevel<=0) return;
+    const r=Math.random();
+    if(r < stormLevel*.22)
+      spawnSheet({x:rnd(.1,.9)*W, y:rnd(.05,.35)*H, peak:rnd(.1,.22)*stormLevel});
+    if(r > 1 - stormLevel*.12)
+      skyBolt({x:rnd(.05,.95), scale:rnd(.35,.6), peak:rnd(.25,.45)*stormLevel, restrikes:1});
+  }, 230);
+}
+
+/* embers */
+if (!reduceMotion){
+  const field = document.getElementById('emberField');
+  for (let i=0;i<22;i++){
+    const e=document.createElement('div'); e.className='ember';
+    e.style.left=Math.random()*100+'%'; e.style.top=60+Math.random()*40+'%';
+    field.appendChild(e);
+    gsap.to(e,{y:-(220+Math.random()*420), x:(Math.random()-.5)*120,
+      opacity:gsap.utils.random(.2,.7), duration:gsap.utils.random(5,11),
+      repeat:-1, delay:Math.random()*8, ease:'none',
+      onRepeat(){ e.style.left=Math.random()*100+'%'; }});
+  }
+}
+
+/* ════════ master scroll timeline ════════ */
+const END = 6200;
+const tl = gsap.timeline({
+  defaults:{ease:'none'},
+  scrollTrigger:{
+    trigger:'#stage', start:'top top', end:'+='+END,
+    scrub: reduceMotion ? false : 0.7,
+    pin:true, anticipatePin:1
+  }
+});
+gsap.to('#progress',{scaleX:1,ease:'none',
+  scrollTrigger:{trigger:'#stage',start:'top top',end:'+='+END,scrub:true}});
+gsap.to('#hint',{autoAlpha:0,
+  scrollTrigger:{trigger:'#stage',start:'2% top',end:'6% top',scrub:true}});
+
+/* choreographed strike = canvas bolt + screen flash + thunder-clap shake */
+function strike(t, fire, {flash=.5, kick=8}={}){
+  if(!reduceMotion) tl.call(fire, null, t);
+  if(flash>0){
+    tl.set('#flash',{opacity:flash}, t)
+      .to('#flash',{opacity:0,duration:.28}, t+.04);
+  }
+  if(kick>0){
+    tl.to('#shaker',{keyframes:[
+      {x:-kick,y:kick*.6},{x:kick*.8,y:-kick*.7},{x:-kick*.5,y:-kick*.3},{x:0,y:0}
+    ],duration:.42}, t+.01);
+  }
+}
+const setStorm = (t,v)=> tl.call(()=>{stormLevel=v;}, null, t);
+
+/* HERO dissolves */
+tl.to('#s-landing',{opacity:0,duration:.8},0.35)
+  .to('#s-landing .inner',{scale:1.35,filter:'blur(10px)',duration:.8},0.35)
+  .to('#heroVid',{scale:1.12,duration:.8},0.35)
+  .call(()=>{const v=document.getElementById('heroVid'); if(v) v.paused||v.pause();},null,1.3)
+  .call(()=>{const v=document.getElementById('heroVid'); if(v && v.style.display!=='none') v.play().catch(()=>{});},null,1.0);
+
+/* ── FLOW 1 · hands slide together, the arc completes ── */
+tl.fromTo('#handL',{x:'-58vw',opacity:0},{x:'0vw',opacity:1,duration:1.7,ease:'power1.out'},0.9)
+  .fromTo('#handR',{x:'58vw', opacity:0},{x:'0vw',opacity:1,duration:1.7,ease:'power1.out'},0.9)
+  .fromTo('#focusTxt',{opacity:0,letterSpacing:'1.5em'},
+                      {opacity:1,letterSpacing:'.7em',duration:.7},1.3)
+  .to('#focusTxt',{opacity:0,duration:.35},2.2);
+strike(2.6, sparkArc, {flash:.35, kick:3});
+
+/* ── FLOW 2 · the sign forms — the WHOLE SKY thunders ── */
+tl.to('#handsPair',{opacity:0,scale:1.15,filter:'blur(8px)',duration:.6},2.95)
+  .fromTo('#signWrap',{opacity:0,scale:.66,filter:'blur(14px)'},
+                      {opacity:1,scale:1,filter:'blur(0px)',duration:.8},3.15)
+  .fromTo('#signCaption',{opacity:0,letterSpacing:'1.7em'},
+                         {opacity:1,letterSpacing:'.85em',duration:.6},3.7);
+
+setStorm(3.5, 1);
+tl.to('#stormGlow',{opacity:1,duration:.8},3.5)
+  .to('#stormGlow',{opacity:.45,duration:.25},4.15)
+  .to('#stormGlow',{opacity:1,duration:.2},4.4)
+  .to('#stormGlow',{opacity:.55,duration:.3},4.9)
+  .to('#stormGlow',{opacity:1,duration:.25},5.2);
+
+/* the barrage — every quadrant gets hit */
+strike(3.70, ()=>tearBolt({peak:1}),                                    {flash:.6,  kick:9});
+strike(3.95, ()=>skyBolt({x:.16, scale:1.15, peak:1, restrikes:3}),     {flash:.6,  kick:8});
+strike(4.15, ()=>skyBolt({x:.84, scale:1.1,  peak:1, restrikes:3}),     {flash:.55, kick:8});
+strike(4.35, ()=>skyBolt({x:.5,  scale:1.35, peak:1, restrikes:3}),     {flash:.7,  kick:11});
+strike(4.55, ()=>{skyBolt({x:.07,scale:.75,peak:.8}); skyBolt({x:.93,scale:.75,peak:.8});}, {flash:.4, kick:6});
+strike(4.75, ()=>tearBolt({peak:.9}),                                   {flash:.55, kick:8});
+strike(4.95, ()=>skyBolt({x:.3,  scale:.9,  peak:.85}),                 {flash:.35, kick:5});
+strike(5.10, ()=>skyBolt({x:.68, scale:.95, peak:.9, restrikes:3}),     {flash:.4,  kick:6});
+strike(5.26, ()=>skyBolt({x:.5,  scale:.8,  peak:.8}),                  {flash:.35, kick:5});
+tl.to('#signImg',{filter:'drop-shadow(0 0 70px rgba(196,181,253,.9))',duration:.12},4.35)
+  .to('#signImg',{filter:'drop-shadow(0 0 40px rgba(124,58,237,.4))',duration:.35},4.6);
+
+/* ── FLOW 3 · the domain opens over the storm ── */
+setStorm(5.45, .55);
+tl.to('#signWrap',{scale:.3,y:'30vh',opacity:0,duration:1.1,ease:'power1.in'},5.45)
+  .to('#signCaption',{opacity:0,duration:.25},5.45)
+  .fromTo('#templeWrap',{opacity:0,y:'42vh',scale:.86},
+                        {opacity:1,y:'0vh',scale:1,duration:1.9},5.55)
+  .fromTo('#sukunaWrap',{opacity:0,y:'50vh'},
+                        {opacity:1,y:'0vh',duration:1.6},6.0)
+  .to('#flash',{opacity:.55,duration:.08},6.05)
+  .to('#flash',{opacity:0,duration:.4},6.14);
+strike(6.45, ()=>skyBolt({x:.85, scale:1,  peak:.85, restrikes:3}), {flash:.4, kick:5});
+strike(6.85, ()=>skyBolt({x:.13, scale:.85,peak:.7}),               {flash:.25,kick:3});
+strike(7.35, ()=>skyBolt({x:.6,  scale:.9, peak:.75, restrikes:3}), {flash:.35,kick:4});
+tl.fromTo('#titleWrap',{opacity:0,x:-80,rotate:-3},
+                       {opacity:1,x:0,rotate:0,duration:1.0},7.0)
+  .fromTo('#cta',{opacity:0,y:26},{opacity:1,y:0,duration:.7},7.6)
+  .to('#templeWrap',{y:'-3vh',duration:1.4},7.8)
+  .to('#sukunaWrap',{y:'-6vh',duration:1.4},7.8)
+  .to('#titleWrap',{y:-16,duration:1.4},7.8);
+setStorm(8.55, .4);
+
+gsap.set('#sukunaWrap',{xPercent:-50});
+gsap.set('#templeWrap',{xPercent:-50});
+
+document.getElementById('cta').addEventListener('click',()=>{
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+</script>
+</body>
+</html>
